@@ -7,6 +7,7 @@ using System.Windows.Forms;
 using CefSharp.Example;
 using System.Threading.Tasks;
 using System.Text;
+using System.Drawing;
 
 namespace CefSharp.WinForms.Example
 {
@@ -17,8 +18,14 @@ namespace CefSharp.WinForms.Example
         // Default to a small increment:
         private const double ZoomIncrement = 0.10;
 
-        public BrowserForm(string url, int startupTabs = 1)
+        public BrowserForm(string url, Rectangle clientRectangle, int startupTabs = 1)
         {
+            this.StartPosition = FormStartPosition.Manual;
+            if (clientRectangle != Rectangle.Empty)
+            {
+                this.Location = clientRectangle.Location;
+                this.Size = clientRectangle.Size;
+            }
             InitializeComponent();
 
             DefaultUrlForAddedTabs = url;
@@ -51,7 +58,7 @@ namespace CefSharp.WinForms.Example
                 Dock = DockStyle.Fill
             };
 
-            //This call isn't required for the sample to work. 
+            //This call isn't required for the sample to work.
             //It's sole purpose is to demonstrate that #553 has been resolved.
             browser.CreateControl();
 
@@ -72,11 +79,11 @@ namespace CefSharp.WinForms.Example
             browserTabControl.ResumeLayout(true);
         }
 
-        private void AddWindow(int startupWindows = 1, int startupTabs = 1)
+        private void AddWindow(Rectangle clientRectangle, int startupWindows = 1, int startupTabs = 1)
         {
             for (int i = 0; i < startupWindows; i++)
             {
-                new BrowserForm(DefaultUrlForAddedTabs, startupTabs).Show();
+                new BrowserForm(DefaultUrlForAddedTabs, clientRectangle, startupTabs).Show();
             }
         }
 
@@ -180,10 +187,28 @@ namespace CefSharp.WinForms.Example
 
                 tabDialog.OnEvaluate += (senderTabDlg, eTabDlg) =>
                 {
-                    AddWindow(int.Parse(dialog.Value), int.Parse(tabDialog.Value));
+                    var sizeDialog = new InputBox
+                    {
+                        Instructions = "Confirm or specify location and size of new window as \"X;Y;width;height\"",
+                        Title = "Size for new window",
+                        Value = $"{this.Location.X};{this.Location.Y};{this.Size.Width};{this.Size.Height}",
+                    };
 
-                    dialog.Close();
-                    tabDialog.Close();
+                    sizeDialog.OnEvaluate += (senderSizeDlg, eSizeDlg) =>
+                    {
+                        var rect = sizeDialog.Value.Split(';');
+                        AddWindow(
+                            new Rectangle(int.Parse(rect[0]), int.Parse(rect[1]), int.Parse(rect[2]), int.Parse(rect[3])),
+                            int.Parse(dialog.Value),
+                            int.Parse(tabDialog.Value));
+
+                        dialog.Close();
+                        tabDialog.Close();
+                        sizeDialog.Close();
+                    };
+
+                    tabDialog.Hide();
+                    sizeDialog.Show(this);
                 };
 
                 dialog.Hide();
@@ -302,7 +327,7 @@ namespace CefSharp.WinForms.Example
                 //var windowInfo = new WindowInfo();
                 ////DevTools becomes a child of the panel, we use it's dimesions
                 //windowInfo.SetAsChild(panel.Handle, rect.Left, rect.Top, rect.Right, rect.Bottom);
-                ////Show DevTools in our panel 
+                ////Show DevTools in our panel
                 //browser.ShowDevTools(windowInfo);
             }
         }
@@ -386,7 +411,7 @@ namespace CefSharp.WinForms.Example
             if (control != null)
             {
                 var frame = control.Browser.GetFocusedFrame();
-                
+
                 //Execute extension method
                 frame.ActiveElementAcceptsTextInput().ContinueWith(task =>
                 {

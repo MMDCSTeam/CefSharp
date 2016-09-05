@@ -3,6 +3,7 @@
 // Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
 
 using System;
+using System.Drawing;
 using System.Windows.Forms;
 using CefSharp.Example;
 using CefSharp.WinForms.Example.Minimal;
@@ -16,6 +17,7 @@ namespace CefSharp.WinForms.Example
         {
             var startupTabs = 1;
             var defaultUrl = "http://www.google.com";
+            var clientRectangle = Rectangle.Empty;
             foreach (var arg in args)
             {
                 if (arg.ToLowerInvariant().Contains("--startuptabs="))
@@ -25,6 +27,11 @@ namespace CefSharp.WinForms.Example
                 if (arg.ToLowerInvariant().Contains("--defaulturl="))
                 {
                     defaultUrl = arg.Split('=')[1];
+                }
+                if (arg.ToLowerInvariant().Contains("--clientrectangle="))
+                {
+                    var rect = arg.Split('=')[1].Split(';');
+                    clientRectangle = new Rectangle(int.Parse(rect[0]), int.Parse(rect[1]), int.Parse(rect[2]), int.Parse(rect[3]));
                 }
             }
 
@@ -79,12 +86,12 @@ namespace CefSharp.WinForms.Example
                     //This function is used to integrate the CEF message loop into an existing application message loop.
                     //Care must be taken to balance performance against excessive CPU usage.
                     //This function should only be called on the main application thread and only if CefInitialize() is called with a CefSettings.multi_threaded_message_loop value of false.
-                    //This function will not block. 
+                    //This function will not block.
 
                     Application.Idle += (s, e) => Cef.DoMessageLoopWork();
                 }
 
-                var browser = new BrowserForm(defaultUrl, startupTabs);
+                var browser = new BrowserForm(defaultUrl, clientRectangle, startupTabs);
                 //var browser = new SimpleBrowserForm();
                 //var browser = new TabulationDemoForm();
                 Application.Run(browser);
