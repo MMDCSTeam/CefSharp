@@ -21,12 +21,13 @@ namespace CefSharp.WinForms.Example
         public BrowserForm(string url, Rectangle clientRectangle, int startupTabs = 1)
         {
             this.StartPosition = FormStartPosition.Manual;
+            InitializeComponent();
+
             if (clientRectangle != Rectangle.Empty)
             {
                 this.Location = clientRectangle.Location;
                 this.Size = clientRectangle.Size;
             }
-            InitializeComponent();
 
             DefaultUrlForAddedTabs = url;
 
