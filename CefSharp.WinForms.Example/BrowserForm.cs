@@ -169,53 +169,23 @@ namespace CefSharp.WinForms.Example
 
         private void NewWindowToolStripMenuItemClick(object sender, EventArgs e)
         {
-            var dialog = new InputBox
+            var inputWindowCount = "1";
+            if (ShowInputDialog("How many new windows?", ref inputWindowCount) == DialogResult.OK)
             {
-                Instructions = "How many new windows?",
-                Title = "Open new windows",
-                Value = "1",
-            };
-
-            dialog.OnEvaluate += (senderDlg, eDlg) =>
-            {
-                var tabDialog = new InputBox
+                var inputTabCount = "1";
+                if (ShowInputDialog("How many new tabs per window?", ref inputTabCount) == DialogResult.OK)
                 {
-                    Instructions = "How many new tabs per window?",
-                    Title = "Open new tabs per window",
-                    Value = "1",
-                };
-
-                tabDialog.OnEvaluate += (senderTabDlg, eTabDlg) =>
-                {
-                    var sizeDialog = new InputBox
+                    var inputClientRectangle = $"{this.Location.X};{this.Location.Y};{this.Size.Width};{this.Size.Height}";
+                    if (ShowInputDialog("Confirm or specify location and size of new window as \"X;Y;width;height\"", ref inputClientRectangle) == DialogResult.OK)
                     {
-                        Instructions = "Confirm or specify location and size of new window as \"X;Y;width;height\"",
-                        Title = "Size for new window",
-                        Value = $"{this.Location.X};{this.Location.Y};{this.Size.Width};{this.Size.Height}",
-                    };
-
-                    sizeDialog.OnEvaluate += (senderSizeDlg, eSizeDlg) =>
-                    {
-                        var rect = sizeDialog.Value.Split(';');
+                        var rect = inputClientRectangle.Split(';');
                         AddWindow(
                             new Rectangle(int.Parse(rect[0]), int.Parse(rect[1]), int.Parse(rect[2]), int.Parse(rect[3])),
-                            int.Parse(dialog.Value),
-                            int.Parse(tabDialog.Value));
-
-                        dialog.Close();
-                        tabDialog.Close();
-                        sizeDialog.Close();
-                    };
-
-                    tabDialog.Hide();
-                    sizeDialog.Show(this);
-                };
-
-                dialog.Hide();
-                tabDialog.Show(this);
-            };
-
-            dialog.Show(this);
+                            int.Parse(inputWindowCount),
+                            int.Parse(inputTabCount));
+                    }
+                }
+            }
         }
 
         private void UndoMenuItemClick(object sender, EventArgs e)
@@ -547,6 +517,46 @@ namespace CefSharp.WinForms.Example
                 control.Browser.Load("data:text/html;base64," + base64EncodedHtml);
 
             }
+        }
+
+        private static DialogResult ShowInputDialog(string message, ref string input)
+        {
+            Size size = new Size(700, 70);
+            Form inputBox = new Form();
+
+            inputBox.StartPosition = FormStartPosition.CenterParent;
+            inputBox.FormBorderStyle = FormBorderStyle.FixedDialog;
+            inputBox.ClientSize = size;
+            inputBox.Text = message;
+
+            TextBox textBox = new TextBox();
+            textBox.Size = new Size(size.Width - 10, 23);
+            textBox.Location = new Point(5, 5);
+            textBox.Text = input;
+            inputBox.Controls.Add(textBox);
+
+            Button okButton = new Button();
+            okButton.DialogResult = DialogResult.OK;
+            okButton.Name = "okButton";
+            okButton.Size = new Size(75, 23);
+            okButton.Text = "&OK";
+            okButton.Location = new Point(size.Width - 80 - 80, 39);
+            inputBox.Controls.Add(okButton);
+
+            Button cancelButton = new Button();
+            cancelButton.DialogResult = DialogResult.Cancel;
+            cancelButton.Name = "cancelButton";
+            cancelButton.Size = new Size(75, 23);
+            cancelButton.Text = "&Cancel";
+            cancelButton.Location = new Point(size.Width - 80, 39);
+            inputBox.Controls.Add(cancelButton);
+
+            inputBox.AcceptButton = okButton;
+            inputBox.CancelButton = cancelButton;
+
+            DialogResult result = inputBox.ShowDialog();
+            input = textBox.Text;
+            return result;
         }
     }
 }
