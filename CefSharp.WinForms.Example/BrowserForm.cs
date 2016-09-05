@@ -79,12 +79,9 @@ namespace CefSharp.WinForms.Example
             browserTabControl.ResumeLayout(true);
         }
 
-        private void AddWindow(Rectangle clientRectangle, int startupWindows = 1, int startupTabs = 1)
+        private void AddWindow(Rectangle clientRectangle, int startupTabs = 1)
         {
-            for (int i = 0; i < startupWindows; i++)
-            {
-                new BrowserForm(DefaultUrlForAddedTabs, clientRectangle, startupTabs).Show();
-            }
+            new BrowserForm(DefaultUrlForAddedTabs, clientRectangle, startupTabs).Show();
         }
 
         private void ExitMenuItemClick(object sender, EventArgs e)
@@ -175,13 +172,20 @@ namespace CefSharp.WinForms.Example
                 var inputTabCount = "1";
                 if (ShowInputDialog("How many new tabs per window?", ref inputTabCount) == DialogResult.OK)
                 {
+                    var newWindowsList = new string[int.Parse(inputWindowCount)];
                     var inputClientRectangle = $"{this.Location.X};{this.Location.Y};{this.Size.Width};{this.Size.Height}";
-                    if (ShowInputDialog("Confirm or specify location and size of new window as \"X;Y;width;height\"", ref inputClientRectangle) == DialogResult.OK)
+                    for (int i = 0; i < newWindowsList.Length; i++)
                     {
-                        var rect = inputClientRectangle.Split(';');
+                        if (ShowInputDialog("Confirm or specify location and size of window " + (i+1) +" as \"X;Y;width;height\"", ref inputClientRectangle) == DialogResult.OK)
+                        {
+                            newWindowsList[i] = inputClientRectangle;
+                        }
+                    }
+                    foreach (var newWindowRect in newWindowsList)
+                    {
+                        var rect = newWindowRect.Split(';');
                         AddWindow(
                             new Rectangle(int.Parse(rect[0]), int.Parse(rect[1]), int.Parse(rect[2]), int.Parse(rect[3])),
-                            int.Parse(inputWindowCount),
                             int.Parse(inputTabCount));
                     }
                 }
