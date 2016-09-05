@@ -65,6 +65,7 @@
             this.browserTabControl = new System.Windows.Forms.TabControl();
             this.testToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openDataUrlToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.newWindowToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -87,6 +88,7 @@
             this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.newTabToolStripMenuItem,
             this.closeTabToolStripMenuItem,
+            this.newWindowToolStripMenuItem,
             this.printToolStripMenuItem,
             this.printToPdfToolStripMenuItem,
             this.aboutToolStripMenuItem,
@@ -353,6 +355,14 @@
             this.openDataUrlToolStripMenuItem.Text = "Open Data Url";
             this.openDataUrlToolStripMenuItem.Click += new System.EventHandler(this.OpenDataUrlToolStripMenuItemClick);
             // 
+            // 
+            // newWindowToolStripMenuItem
+            // 
+            this.newWindowToolStripMenuItem.Name = "newWindowToolStripMenuItem";
+            this.newWindowToolStripMenuItem.Size = new System.Drawing.Size(161, 22);
+            this.newWindowToolStripMenuItem.Text = "New &Window";
+            this.newWindowToolStripMenuItem.Click += new System.EventHandler(this.NewWindowToolStripMenuItemClick);
+            // 
             // BrowserForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -409,6 +419,6 @@
         private System.Windows.Forms.ToolStripMenuItem printToPdfToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem testToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem openDataUrlToolStripMenuItem;
-
+        private System.Windows.Forms.ToolStripMenuItem newWindowToolStripMenuItem;
     }
 }

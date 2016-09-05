@@ -12,20 +12,25 @@ namespace CefSharp.WinForms.Example
 {
     public partial class BrowserForm : Form
     {
-        private const string DefaultUrlForAddedTabs = "https://www.google.com";
+        private string DefaultUrlForAddedTabs = "https://www.google.com";
 
         // Default to a small increment:
         private const double ZoomIncrement = 0.10;
 
-        public BrowserForm()
+        public BrowserForm(string url, int startupTabs = 1)
         {
             InitializeComponent();
 
+            DefaultUrlForAddedTabs = url;
+
             var bitness = Environment.Is64BitProcess ? "x64" : "x86";
             Text = "CefSharp.WinForms.Example - " + bitness;
-            WindowState = FormWindowState.Maximized;
+            //WindowState = FormWindowState.Maximized;
 
-            AddTab(CefExample.DefaultUrl);
+            for (int i = 0; i < startupTabs; i++)
+            {
+                AddTab(url);
+            }
 
             //Only perform layout when control has completly finished resizing
             ResizeBegin += (s, e) => SuspendLayout();
@@ -65,6 +70,14 @@ namespace CefSharp.WinForms.Example
             browserTabControl.SelectedTab = tabPage;
 
             browserTabControl.ResumeLayout(true);
+        }
+
+        private void AddWindow(int startupWindows = 1, int startupTabs = 1)
+        {
+            for (int i = 0; i < startupWindows; i++)
+            {
+                new BrowserForm(DefaultUrlForAddedTabs, startupTabs).Show();
+            }
         }
 
         private void ExitMenuItemClick(object sender, EventArgs e)
@@ -145,6 +158,39 @@ namespace CefSharp.WinForms.Example
             {
                 ExitApplication();
             }
+        }
+
+        private void NewWindowToolStripMenuItemClick(object sender, EventArgs e)
+        {
+            var dialog = new InputBox
+            {
+                Instructions = "How many new windows?",
+                Title = "Open new windows",
+                Value = "1",
+            };
+
+            dialog.OnEvaluate += (senderDlg, eDlg) =>
+            {
+                var tabDialog = new InputBox
+                {
+                    Instructions = "How many new tabs per window?",
+                    Title = "Open new tabs per window",
+                    Value = "1",
+                };
+
+                tabDialog.OnEvaluate += (senderTabDlg, eTabDlg) =>
+                {
+                    AddWindow(int.Parse(dialog.Value), int.Parse(tabDialog.Value));
+
+                    dialog.Close();
+                    tabDialog.Close();
+                };
+
+                dialog.Hide();
+                tabDialog.Show(this);
+            };
+
+            dialog.Show(this);
         }
 
         private void UndoMenuItemClick(object sender, EventArgs e)

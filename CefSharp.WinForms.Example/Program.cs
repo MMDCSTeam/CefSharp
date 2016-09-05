@@ -14,6 +14,20 @@ namespace CefSharp.WinForms.Example
         [STAThread]
         public static int Main(string[] args)
         {
+            var startupTabs = 1;
+            var defaultUrl = "http://www.google.com";
+            foreach (var arg in args)
+            {
+                if (arg.ToLowerInvariant().Contains("--startuptabs="))
+                {
+                    startupTabs = int.Parse(arg.Split('=')[1]);
+                }
+                if (arg.ToLowerInvariant().Contains("--defaulturl="))
+                {
+                    defaultUrl = arg.Split('=')[1];
+                }
+            }
+
             const bool simpleSubProcess = false;
 
             Cef.EnableHighDPISupport();
@@ -70,7 +84,7 @@ namespace CefSharp.WinForms.Example
                     Application.Idle += (s, e) => Cef.DoMessageLoopWork();
                 }
 
-                var browser = new BrowserForm();
+                var browser = new BrowserForm(defaultUrl, startupTabs);
                 //var browser = new SimpleBrowserForm();
                 //var browser = new TabulationDemoForm();
                 Application.Run(browser);
